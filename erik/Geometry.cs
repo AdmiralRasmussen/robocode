@@ -76,6 +76,11 @@ namespace goro
 
         public static double Heading(this PointF point, PointF target)
         {
+            return Geometry.RadiansToDegrees(HeadingRadians(point, target));
+        }
+
+        public static double HeadingRadians(this PointF point, PointF target)
+        {
             return Math.Atan2(target.X - point.X, target.Y - point.Y);
         }
 
