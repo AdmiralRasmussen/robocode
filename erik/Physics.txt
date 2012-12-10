@@ -1,0 +1,54 @@
+Time and distance measurements in Robocode
+
+Time (t):	 Robocode time is measured in "ticks". Each robot gets one turn per tick. 1 tick = 1 turn.
+Distance Measurement:	 Robocode's units are basically measured in pixels, with two exceptions. First, all distances are measured with double precision, so you can actually move a fraction of a pixel. Second, Robocode automatically scales down battles to fit on the screen. In this case, the unit of distance is actually smaller than a pixel.
+Robot Movement Physics
+
+Acceleration (a):	 Robots accelerate at the rate of 1 pixel/turn/turn. Robots decelerate at the rate of 2 pixels/turn/turn. Robocode determines acceleration for you, based on the distance you are trying to move.
+Velocity Equation(v):	 v = at. Velocity can never exceed 8 pixels/turn. Note that technically, velocity is a vector, but in Robocode we simply assume the direction of the vector to be the robot's heading.
+Distance Equation (d):	 d = vt. That is, distance = velocity * time
+Robot, Gun, and Radar rotation
+
+Max rate of rotation of robot:	 (10 - 0.75 * abs(velocity)) deg / turn. The faster you're moving, the slower you turn.
+Max rate of rotation of gun:	 20 deg / turn. This is added to the current rate of rotation of the robot.
+Max rate of rotation of radar:	 45 deg / turn. This is added to the current rate of rotation of the gun.
+Bullets
+
+Damage:	 4 * firepower. If firepower > 1, it does an additional damage = 2 * (power - 1).
+Velocity:	 20 - 3 * firepower.
+GunHeat generated:	 1 + firepower / 5. You cannot fire if gunHeat > 0. All guns are hot at the start of each round.
+Power returned on hit:	 3 * firepower.
+Collisions
+
+With Another Robot:	 Each robot takes 0.6 damage. If a robot is moving away from the collision, it will not be stopped.
+With a Wall:	AdvancedRobots take abs(velocity) * 0.5 - 1; (Never < 0).
+Robocode Processing Loop
+
+The order that Robocode runs is as follows:
+Battle view is (re)painted.
+All robots execute their code until they take action (and then paused).
+Time is updated (time = time + 1).
+All bullets move and check for collisions. This includes firing bullets.
+All robots move (gun, radar, heading, acceleration, velocity, distance, in that order).
+All robots perform scans (and collect team messages).
+All robots are resumed to take new action.
+Each robot processes its event queue.
+Most of this can be gleamed by following the method calls from BaseBattle.runRound() and Battle.runTurn() in the robocode.battle module.
+Firing Pitfall
+Because bullets are fired before the gun is moved, calling setFire() will cause the bullet to leave at the current gun heading. This may seem counter-intuitive if you are used to thinking in terms of pointing a gun, then shooting. It is also inconvenient because you can't call setTurnGun(...) and setFire(...) right after each other (not if you need perfect accuracy, anyway). Most of the time, the error will be so small you won't notice it, but if you're testing a pattern matcher against sample.Walls, you will occasionally spot the bug.
+To get the bullet to leave after turning the gun, you will need to use code like this:
+long fireTime = 0;
+void doGun() {
+    if (fireTime == getTime() && getGunTurnRemaining() == 0) {
+        setFire(2);
+    }
+ 
+    // ... aiming code ...
+ 
+    setTurnGunRight(...);
+    // Don't need to check whether gun turn will complete in single turn because
+    // we check that gun is finished turning before calling setFire(...).
+    // This is simpler since the precise angle your gun can move in one tick
+    // depends on where your robot is turning.
+    fireTime = getTime() + 1;
+}
