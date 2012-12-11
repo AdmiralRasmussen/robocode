@@ -1,0 +1,7 @@
+Go here...
+http://sourceforge.net/projects/robocode/files/robocode/1.7.4.2/
+Get this one... robocode-1.7.4.2-setup.jar <http://sourceforge.net/projects/robocode/files/robocode/1.7.4.2/robocode-1.7.4.2-setup.jar/download> 
+And this one... robocode.dotnet-1.7.4.2-setup.jar <http://sourceforge.net/projects/robocode/files/robocode/1.7.4.2/robocode.dotnet-1.7.4.2-setup.jar/download>  
+Then get this awesome bot...
+http://minifly.rchomepage.com/robocode/DrussGT.java_WSC
+
